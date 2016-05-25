@@ -135,22 +135,16 @@ def game():
         if vege not in test:
 
             screen.addch(vege[0], vege[1], ' ')
-
-        troll_teleport = False
-        troll_teleport_happens = random.randint(0,50)
-        if troll_teleport_happens == 0 :
-            troll_teleport = True
-        if troll_teleport is True :
-
-            troll_y = random.randint(0, 100)
-            troll_x = random.randint(0, 100)
-            fej[0] = int(troll_y)
-            fej[1] = int(troll_x)
+        troll_teleport_happens = random.randint(0, 50)
+        if troll_teleport_happens == 0:
+            global hatar
+            y = random.randint(5, hatar[0]-5)
+            x = random.randint(5, hatar[1]-5)
+            fej = [y, x]
 
         screen.addch(fej[0], fej[1], 'o', curses.color_pair(1))
 
-
-        # mozgatas
+# mozgatas
 
         action = screen.getch()
         if action == curses.KEY_UP and direction != 2:
@@ -236,9 +230,9 @@ def game():
             jatek = True
 
         curva_troll = random.randint(0, 50)
-        if curva_troll == 0 :
+        if curva_troll == 0:
             troll_direction = random.randint(1, 9)
-            if troll_direction !=5 :
+            if troll_direction != 5:
                 direction = troll_direction
 
     return pontszam
@@ -285,11 +279,11 @@ def highscore():
 
         kilep = screen.getch()
         global mehet
-
         if kilep == curses.KEY_END:
             mehet = False
         if kilep == curses.KEY_HOME:
             mehet = True
+
         return mehet
 
     else:
@@ -303,11 +297,13 @@ def highscore():
             mehet = False
         if kilep == curses.KEY_HOME:
             mehet = True
+
         return mehet
 
-def was_it_troll():
+
+def was_it_trolldeath():
     global troll
-    troll= False
+    troll = False
     return troll
 
 while mehet:
@@ -316,7 +312,7 @@ while mehet:
     createMap()
     game()
     highscore()
-    was_it_troll()
+    was_it_trolldeath()
 
 
 curses.endwin()
