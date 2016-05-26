@@ -286,8 +286,8 @@ def troll_message(message):
     global y
     global x
     troll_message_remaining = 10025
-    y_message = random.randint(3, 2*y-10)
-    x_message = random.randint(3, 2*x-3)
+    y_message = random.randint(10, 2*y-20)
+    x_message = random.randint(10, 2*x-20)
     screen.addstr(y_message, x_message, str(message))
     position = [y_message, x_message]
     troll_message_position.append(position)
