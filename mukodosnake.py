@@ -9,142 +9,137 @@ curses.init_color(0, 0, 0, 0)
 curses.init_pair(1, curses.COLOR_YELLOW, curses.COLOR_BLACK)
 curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)
 screen.keypad(1)
-hatar = screen.getmaxyx()
-screen.border()
+border_of_map = screen.getmaxyx()
 curses.noecho()
-m = int(hatar[0] / 2)  # y
-n = int(hatar[1] / 2)  # x
-terkep = 5
-pontszam = 0
-mehet = True
+y = int(border_of_map[0] / 2)
+x = int(border_of_map[1] / 2)
+
+score = 0
+lets_go = True
 troll = False
-a = "choose a map, press a number(1-9, turn off numlock)): "
-how_many = 0
-troll_death = 1
+map_displayed = 5
+length = 5
+remaining_time = 9999
+troll_message_remaining = 9999
+speed = 0.05
+troll = False
+troll_message_position = []
+
+choose_map = "Turn NumLock off, and press 5 to start"
 
 
 def menu():
 
     screen.clear()
-    global a
-    global terkep
-    screen.addstr(
-        m,
-        n - int(len(a) / 2),
-        "choose a map, press a number(1-9, turn off numlock)): ")
+
+    global choose_map
+    global map_displayed
+    map_displayed = 5
+    screen.addstr(y, x - int(len(choose_map) / 2), str(choose_map))
+
     choose = screen.getch()
+    screen.clear()
+
     if choose == curses.KEY_END:
-        terkep = 1
+        map_displayed = 1
     elif choose == curses.KEY_DOWN:
-        terkep = 2
+        map_displayed = 2
     elif choose == curses.KEY_NPAGE:
-        terkep = 3
+        map_displayed = 3
     elif choose == curses.KEY_LEFT:
-        terkep = 4
+        map_displayed = 4
+    # map number 5 is the empty map
     elif choose == curses.KEY_RIGHT:
-        terkep = 6
-    elif choose == curses.KEY_HOME:
-        terkep = 7
-    elif choose == curses.KEY_UP:
-        terkep = 8
-    elif choose == curses.KEY_PPAGE:
-        terkep = 9
+        map_displayed = 6
 
-    screen.addstr(m, n - int(len(a) / 2), " " * int(len(list(a)) + 2))
-    return terkep
+    return map_displayed
 
 
-def createMap():
+def create_map():
 
-    if terkep == 1:
-        screen.addch(m, n, 'x', curses.color_pair(2))
-        for a in range(-(m - 7), m - 7):
-            screen.addch(m + a, n, 'x', curses.color_pair(2))
-        for a in range(-(n - 7), n - 7):
-            screen.addch(m, n + a, 'x', curses.color_pair(2))
+    global map_displayed
 
-    if terkep == 2:
-        screen.addch(m, n, 'x')
-        for a in range(-(m - 7), m - 7):
-            screen.addch(m + a, n + a, 'x', curses.color_pair(2))
-        for a in range(-(m - 7), m - 7):
-            screen.addch(m + a, n - a, 'x', curses.color_pair(2))
+    if map_displayed == 1:
+        screen.addch(y, x, 'x', curses.color_pair(2))
+        for coord in range(-(y - 7), y - 7):
+            screen.addch(y + coord, x, 'x', curses.color_pair(2))
+        for coord in range(-(x - 7), y - 7):
+            screen.addch(y, x + coord, 'x', curses.color_pair(2))
 
-    if terkep == 3:
-        screen.addch(m, n, 'x')
-        for a in range(-(m - 7), m - 7):
-            screen.addch(m + a, n + a, 'x', curses.color_pair(2))
-        for a in range(-(m - 7), m - 7):
-            screen.addch(m + a, n - a, 'x', curses.color_pair(2))
-        for a in range(-(n - 7), n - 7):
-            screen.addch(m, n + a, 'x', curses.color_pair(2))
+    if map_displayed == 2:
+        screen.addch(y, x, 'x')
+        for coord in range(-(y - 7), y - 7):
+            screen.addch(y + coord, x + coord, 'x', curses.color_pair(2))
+        for coord in range(-(y - 7), y - 7):
+            screen.addch(y + coord, x - coord, 'x', curses.color_pair(2))
 
-    if terkep == 4:
+    if map_displayed == 3:
+        screen.addch(y, x, 'x')
+        for coord in range(-(y - 7), y - 7):
+            screen.addch(y + coord, x + coord, 'x', curses.color_pair(2))
+        for coord in range(-(y - 7), y - 7):
+            screen.addch(y + coord, x - coord, 'x', curses.color_pair(2))
+        for coord in range(-(x - 7), x - 7):
+            screen.addch(y, x + coord, 'x', curses.color_pair(2))
 
-        for a in range(-(m - 7), m - 7):
-            screen.addch(m + a, n + a + 10, 'x', curses.color_pair(2))
-        for a in range(-(m - 7), m - 7):
-            screen.addch(m + a, n - a + 10, 'x', curses.color_pair(2))
-        for a in range(-(m - 7), m - 7):
-            screen.addch(m + a, n + a - 10, 'x', curses.color_pair(2))
-        for a in range(-(m - 7), m - 7):
-            screen.addch(m + a, n - a - 10, 'x', curses.color_pair(2))
+    if map_displayed == 4:
 
-    if terkep == 6:
+        for coord in range(-(y - 7), y - 7):
+            screen.addch(y + coord, x + coord + 10, 'x', curses.color_pair(2))
+        for coord in range(-(y - 7), y - 7):
+            screen.addch(y + coord, x - coord + 10, 'x', curses.color_pair(2))
+        for coord in range(-(y - 7), y - 7):
+            screen.addch(y + coord, x + coord - 10, 'x', curses.color_pair(2))
+        for coord in range(-(y - 7), y - 7):
+            screen.addch(y + coord, x - coord - 10, 'x', curses.color_pair(2))
 
-        screen.addch(m, n, 'x')
+    if map_displayed == 6:
 
-        for a in range(-(n - 7), n - 7):
-            screen.addch(m, n + a, 'x', curses.color_pair(2))
-        for a in range(-(m - 7), m - 7):
-            screen.addch(m + a, n + 10, 'x', curses.color_pair(2))
-        for a in range(-(m - 7), m - 7):
-            screen.addch(m + a, n - 10, 'x', curses.color_pair(2))
+        screen.addch(y, x, 'x')
+
+        for coord in range(-(y - 7), x - 7):
+            screen.addch(y, x + coord, 'x', curses.color_pair(2))
+        for coord in range(-(y - 7), x - 7):
+            screen.addch(y + coord, x + 10, 'x', curses.color_pair(2))
+        for coord in range(-(y - 7), y - 7):
+            screen.addch(y + coord, x - 10, 'x', curses.color_pair(2))
+
+    screen.border("#", "#", "#", "#", "#", "#", "#", "#")
 
 
 def game():
 
-    global how_many
+    screen.border("#", "#", "#", "#", "#", "#", "#", "#")
     screen.nodelay(1)
 
-    fej = [6, 6]  # a kigyo a 6,6 pontnal jelenik meg (1,1 - bal felso sarok)
-    test = [fej[:]] * 5
+    head = [20, 20]
+    body = []
+    direction = 3
+    snake_moves = True
+    food_exist = False
 
-    direction = 6  # 6: right, 2: down, 4: left, 8: up - a kigyo jobbra indul
-    jatek = True
-    jokaja = False
-    rosszkaja = False
-    vege = test[-1][:]
+    global x
+    global y
+    global length
 
-    while jatek:
+    while snake_moves:
 
-        global pontszam
-        pontszam = int(len(test) - 5)
-        screen.addstr(0, 2 * n - 15, "pontszam: " + str(pontszam))
+        global score
+        screen.addstr(0, 2 * x - 15, " "*10)
+        screen.addstr(0, 2 * x - 15, "score: " + str(score))
+        screen.move(border_of_map[0]-1, border_of_map[1]-1)
 
-        while not jokaja:
-            q, w = random.randrange(
-                1, hatar[0] - 1), random.randrange(1, hatar[1] - 1)
-            y, x = random.randrange(
-                1, hatar[0] - 1), random.randrange(1, hatar[1] - 1)
-            if screen.inch(y, x) == ord(' '):
-                jokaja = True
-                screen.addch(y, x, '+')
-                screen.addch(q, w, '-')
+        while not food_exist:
 
-        if vege not in test:
+            y_food = random.randrange(20, border_of_map[0] - 20)
+            x_food = random.randrange(20, border_of_map[1] - 20)
+            if screen.inch(y_food, x_food) == ord(' '):
+                food_exist = True
+                screen.addch(y_food, x_food, '+')
 
-            screen.addch(vege[0], vege[1], ' ')
-        troll_teleport_happens = random.randint(0, 50)
-        if troll_teleport_happens == 0:
-            global hatar
-            y = random.randint(5, hatar[0]-5)
-            x = random.randint(5, hatar[1]-5)
-            fej = [y, x]
-
-        screen.addch(fej[0], fej[1], 'o', curses.color_pair(1))
-
-# mozgatas
+        screen.addch(head[0], head[1], 'o')
+        co_ord_list = (head[0], head[1])
+        body.append(list(co_ord_list))
 
         action = screen.getch()
         if action == curses.KEY_UP and direction != 2:
@@ -164,155 +159,241 @@ def game():
         if action == curses.KEY_NPAGE and direction != 7:
             direction = 3
 
-        # iranyok
-
         if direction == 6:
-            fej[1] += 1
+            head[1] += 1
         elif direction == 4:
-            fej[1] -= 1
+            head[1] -= 1
         elif direction == 2:
-            fej[0] += 1
+            head[0] += 1
         elif direction == 8:
-            fej[0] -= 1
+            head[0] -= 1
         elif direction == 7:
-            fej[1] -= 1
-            fej[0] -= 1
+            head[1] -= 1
+            head[0] -= 1
         elif direction == 1:
-            fej[1] -= 1
-            fej[0] += 1
+            head[1] -= 1
+            head[0] += 1
         elif direction == 9:
-            fej[1] += 1
-            fej[0] -= 1
+            head[1] += 1
+            head[0] -= 1
         elif direction == 3:
-            fej[1] += 1
-            fej[0] += 1
+            head[1] += 1
+            head[0] += 1
 
-        vege = test[-1]
+        message_1 = "WATCH OUT!"
+        message_2 = "TROLLED!"
+        message_3 = "HAHAAAA"
+        message_4 = "Ráb@$ztál!"
+        message_5 = "SURPRISE!"
 
-        for z in range(len(test) - 1, 0, -1):
-            test[z] = test[z - 1][:]
+        message_x = random.randint(1, 5)
 
-        test[0] = fej[:]
+        if message_x == 1:
+            message_to_display = message_1
+        if message_x == 2:
+            message_to_display = message_2
+        if message_x == 3:
+            message_to_display = message_3
+        if message_x == 4:
+            message_to_display = message_4
+        if message_x == 5:
+            message_to_display = message_5
 
-        if screen.inch(fej[0], fej[1]) != ord(' '):
-            if screen.inch(fej[0], fej[1]) == ord('+'):
-                jokaja = False
-                test.append(test[-1])
-            elif screen.inch(fej[0], fej[1]) == ord('-'):
-                jatek = False
-                how_many = 0
-                return how_many
+        if screen.inch(head[0], head[1]) == ord('+'):
+            good_or_bad = random.randint(0, 5)
+            global score
+            if good_or_bad == 0 and score > 2:
+                score = round(score/2)
+                food_exist = False
+                for to_delete in range(0, length-5):
+                    deleted_co_ord = body[to_delete]
+                    screen.addch(deleted_co_ord[0], deleted_co_ord[1], " ")
+                for to_delete in range(0, length-5):
+                    body.remove(body[0])
+                length = 5
+            elif good_or_bad == 0 and score < 3:
+                food_exist = False
             else:
-                jatek = False
-                how_many = 0
-                return how_many
+                score += 1
+                length += 5
+                food_exist = False
+                troll_message(message_to_display)
+        if screen.inch(head[0], head[1]) == ord('#'):
+            snake_moves = False
+            return score
+        if screen.inch(head[0], head[1]) == ord('x'):
+            snake_moves = False
+            return score
+        if screen.inch(head[0], head[1]) == ord('o'):
+            snake_moves = False
+            return score
 
-        screen.move(hatar[0] - 1, hatar[1] - 1)
+        troll_speed = random.randint(0, 200)
+        global remaining_time
+        global speed
+        if troll_speed == 0:
+            remaining_time = 10050
+            speed = 0.01
+            troll_message(message_to_display)
+        remaining_time -= 1
+        if remaining_time < 10000:
+            speed = 0.05
+
+        troll_direction = random.randint(0, 200)
+        if troll_direction == 0:
+            troll_direction = random.randint(1, 9)
+            if troll_direction != 5 and troll_direction + direction != 10:
+                direction = troll_direction
+                troll_message(message_to_display)
+
+        troll_teleport_happens = random.randint(0, 200)
+        if troll_teleport_happens == 0:
+            global border_of_map
+            y_head = random.randint(10, border_of_map[0]-10)
+            x_head = random.randint(10, border_of_map[1]-10)
+            head = [y_head, x_head]
+            troll_message(message_to_display)
+
+        screen.move(border_of_map[0] - 1, border_of_map[1] - 1)
         screen.refresh()
 
-        speed = 0.5 / len(test)
-
         if direction == 4 or direction == 6:
-
             time.sleep(speed)
-
         else:
-
             time.sleep(speed * 1.5)
 
-        troll_death = random.randint(0, 1000)
-        if troll_death == 0 and pontszam > 1:
-            global troll
-            troll = True
-            jatek = False
-            return troll
-        else:
-            jatek = True
+        disapperaing_co_ord = body[0]
+        if body.index(body[-1]) > length:
+            screen.addch(disapperaing_co_ord[0], disapperaing_co_ord[1], " ")
+            body.remove(body[0])
 
-        curva_troll = random.randint(0, 50)
-        if curva_troll == 0:
-            troll_direction = random.randint(1, 9)
-            if troll_direction != 5:
-                direction = troll_direction
+        global troll_message_remaining
+        troll_message_remaining -= 1
 
-    return pontszam
+        if troll_message_remaining < 10000 and len(troll_message_position) > 0:
+            for item_number in range(0, len(troll_message_position)):
+                str_to_remove_start = list(troll_message_position[item_number])
+                screen.addstr(str_to_remove_start[0], str_to_remove_start[1], (" ")*10)
+            for item_number in range(0, len(troll_message_position)):
+                troll_message_position.remove(troll_message_position[0])
+
+    return score
+
+
+def troll_message(message):
+
+    global troll_message_remaining
+    global y
+    global x
+    troll_message_remaining = 10025
+    y_message = random.randint(3, 2*y-10)
+    x_message = random.randint(3, 2*x-3)
+    screen.addstr(y_message, x_message, str(message))
+    position = [y_message, x_message]
+    troll_message_position.append(position)
 
 
 def highscore():
-    global pontszam
+
     screen.nodelay(0)
+    global score
     screen.clear()
-    ujrekord = False
+    new_record = False
     global troll
+    do_we_wanna_troll = random.randint(0, 1)
+    if do_we_wanna_troll == 1:
+        troll = True
 
     if troll is False:
         if os.path.isfile("rekord.txt") is True:
 
-            r = open("rekord.txt", "r")
-            highscorelist = r.readlines()
-            r.close()
-            maybeHS = highscorelist[0]
+            read_highscore = open("rekord.txt", "r")
+            highscorelist = read_highscore.readlines()
+            read_highscore.close()
+            maybe_highscore = highscorelist[0]
 
-            if pontszam > int(maybeHS):
-                w = open("rekord.txt", "w")
-                w.write(str(pontszam))
-                w.close
-                ujrekord = True
+            if score > int(maybe_highscore):
+                rewrite = open("rekord.txt", "w")
+                rewrite.write(str(score))
+                rewrite.close
+                new_record = True
 
         else:
-            w = open("rekord.txt", "w")
-            w.write(str(pontszam))
-            w.close
-            ujrekord = True
+            rewrite = open("rekord.txt", "w")
+            rewrite.write(str(score))
+            rewrite.close
+            new_record = True
 
-        screen.addstr(m, n - 7, "pontszam: " + str(pontszam))
-        if ujrekord:
+        screen.addstr(y, x - 7, "score: " + str(score))
 
-            screen.addstr(m + 1, n - 7, "rekord: " + str(pontszam))
+        if new_record:
+            screen.addstr(y + 1, x - 7, "Highscore: " + str(score))
         else:
-            screen.addstr(m + 1, n - 7, "rekord: " + str(maybeHS))
+            screen.addstr(y + 1, x - 7, "Highscore: " + str(maybe_highscore))
 
-        screen.addstr(
-            m + 2,
-            n - 7,
-            "press HOME to restart, press END to escape")
-
-        kilep = screen.getch()
-        global mehet
-        if kilep == curses.KEY_END:
-            mehet = False
-        if kilep == curses.KEY_HOME:
-            mehet = True
-
-        return mehet
+        screen.addstr(y + 2, x - 7, "press HOME to restart, or END to escape")
 
     else:
 
-        screen.addstr(m, n - 7, "Ha ha ha loooooooser xDDDD")
-        screen.addstr(m + 1, n - 7, "Do you want to try again?")
+        screen.addstr(y, x - 7, "oooh well.....")
+        screen.addstr(y + 1, x - 7, "This time we didnt count your points")
+        screen.addstr(y + 5, x - 7, "LOL")
 
-        kilep = screen.getch()
-        global mehet
-        if kilep == curses.KEY_END:
-            mehet = False
-        if kilep == curses.KEY_HOME:
-            mehet = True
+    global lets_go
 
-        return mehet
+    exit_game = screen.getch()
+    if exit_game == curses.KEY_END:
+        lets_go = False
+    if exit_game == curses.KEY_HOME:
+        lets_go = True
+
+    return lets_go
 
 
-def was_it_trolldeath():
+def reset_troll():
+
     global troll
     troll = False
     return troll
 
-while mehet:
+
+def reset_score():
+
+    global score
+    score = 0
+    return score
+
+
+def reset_length():
+
+    global length
+    length = 5
+    return length
+
+
+def reset_speed():
+
+    global speed
+    speed = 0.05
+    return speed
+
+
+def reset_remaining_time():
+
+    global remaining_time
+    remaining_time = 9999
+    return remaining_time
+
+while lets_go:
 
     menu()
-    createMap()
+    #create_map()
     game()
     highscore()
-    was_it_trolldeath()
-
+    reset_troll()
+    reset_score()
+    reset_length()
+    reset_remaining_time()
+    reset_speed()
 
 curses.endwin()
